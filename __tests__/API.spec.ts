@@ -68,6 +68,25 @@ describe('API', () => {
         }
     });
 
+    it('API.createObject() should throw an error if file exceeds size allowed', async () => {
+        const id = 'id';
+        const file =  new File([""], "filename", { type: 'text/html' });
+        Object.defineProperty(file, 'size', { value: 20710770 });
+
+        const token = {
+            chatId: '',
+            token: ''
+        };
+
+        (global as any).fetch = jest.fn(() => Promise.reject());
+
+        try {
+            await API.createObject(id, file, token);
+        } catch (error) {
+            expect(error).not.toBe(undefined);
+        }
+    });
+
     it('API.uploadDocument() should call fetch', async () => {
         const documentId = 'documentId';
         const file =  new File([""], "filename", { type: 'text/html' });

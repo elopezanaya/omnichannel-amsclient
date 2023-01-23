@@ -22,7 +22,7 @@ class FramedlessClient {
 
     constructor(logger: AMSLogger | undefined = undefined) {
         this.runtimeId = uuidv4();
-        this.debug = false;
+        this.debug = true;
         this.logger = logger;
 
         if (platform.isBrowser()) {
@@ -99,6 +99,9 @@ class FramedlessClient {
 
             return response;
         } catch (error) {
+
+            this.debug && console.log("ELOPEZANAYA FMDLSS-> AMS-CLIENT" + JSON.stringify(error));
+
             this.scenarioMarker?.failScenario(PostMessageEventName.CreateObject, {
                 ChatId: chatToken ? chatToken.chatId : this.chatToken?.chatId,
                 ExceptionDetails: error

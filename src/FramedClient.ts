@@ -105,6 +105,7 @@ class FramedClient {
             supportedImagesMimeTypes
         };
 
+        GlobalConfiguration.debug && console.log('ELOPEZANAYA AMSCLIENT frmmed createObject');
         await this.loadIframe();
 
         return new Promise((resolve, reject) => {
@@ -223,10 +224,24 @@ class FramedClient {
                     delete this.requestCallbacks[data.requestId];
                 }
             } else if (event.data.eventName === PostMessageEventName.CreateObject) {
+
+                GlobalConfiguration.debug && console.log("ELOPEZANAYA AMS-CLIENT ->FRMCLT -> EVENT :" + JSON.stringify(event));
+                GlobalConfiguration.debug && console.log("ELOPEZANAYA AMS-CLIENT ->FRMCLT -> data :" + JSON.stringify(data));
+
                 if (data.requestId in this.requestCallbacks) {
+
+                    GlobalConfiguration.debug && console.log("ELOPEZANAYA AMS-CLIENT ->FRMCLT -> moving forward");
+
+                    if (data.response!= null && data.response.error != null && data.response.error==+"AMSCreateObjectFailed_FileSizeOver20MB"){
+                        GlobalConfiguration.debug && console.log("ELOPEZANAYA AMS-CLIENT ->FRMCLT -> eRRRORRR");
+                        this.requestCallbacks[data.requestId].reject(data.response as AMSCreateObjectResponse);
+                        delete this.requestCallbacks[data.requestId];
+                    }else{
                     this.requestCallbacks[data.requestId].resolve(data.response as AMSCreateObjectResponse);
                     delete this.requestCallbacks[data.requestId];
+                    }
                 }
+
             } else if (event.data.eventName === PostMessageEventName.UploadDocument) {
                 if (data.requestId in this.requestCallbacks) {
                     this.requestCallbacks[data.requestId].resolve(data.response as FileMetadata);
@@ -246,6 +261,7 @@ class FramedClient {
                 this.logger?.log(data.logLevel, data.logData.Event, data.logData);
             }
         }
+        GlobalConfiguration.debug && console.log("ELOPEZANAYA FRAMED event.data " + JSON.stringify(event.data));
     }
 
     public dispose(): void {
@@ -276,6 +292,7 @@ class FramedClient {
             });
 
             iframeElement.addEventListener('error', () => {
+                console.log("ELOPEZANAYA AMS_CLIENT ERROR");
                 reject();
             });
 

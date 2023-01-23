@@ -49,6 +49,8 @@ interface AMSHeaders {
 
 const defaultSupportedImagesMimeTypes = ["image/jpeg", "image/png", "image/gif"];
 
+const fileSizeSupportedByAMS = 20000000;
+
 const patchChatToken = (chatToken: OmnichannelChatToken) => {
     // Temporary
     if (!chatToken.regionGTMS) {
@@ -109,12 +111,30 @@ const defineTypeForOperation = (fileType: string, apiOperation: string, supporte
     return apiOperation === AmsApiOperation.Create ? DocumentTypes.CreateDocumentType : DocumentTypes.UploadDocumentType;
 }
 
+const isSizeValid =  (file: File)  => {
+    GlobalConfiguration.debug && console.log("ELOPEZ-AMS isSizeValid filesize :  " + file.size);
+    GlobalConfiguration.debug && console.log("ELOPEZ-AMS isSizeValid result :  " + (fileSizeSupportedByAMS >= file.size));
+    
+    return fileSizeSupportedByAMS >= file.size;
+};
+
 const createObject = async (id: string, file: File, chatToken: OmnichannelChatToken, supportedImagesMimeTypes?: string[]): Promise<AMSCreateObjectResponse> => {
     GlobalConfiguration.debug && console.log(`[API][createObject]`);
 
     const permissions = {
         [id]: ['read']
     };
+
+    if (!isSizeValid(file)){
+        !GlobalConfiguration.silentError && console.log("ELOPEZ-AMS ERROR thrown");
+
+        const errorResponse : AMSCreateObjectResponse = {id:'' , error: "AMSCreateObjectFailed_FileSizeOver20MB"};        
+        return errorResponse;
+       // throw new Error('AMSCreateObjectFailed_FileSizeOver20MB');
+    }
+
+    GlobalConfiguration.debug && console.log("ELOPEZ-AMS after validation :  " + file.size);
+
     const typeObject = defineTypeForOperation(file.type, AmsApiOperation.Create, supportedImagesMimeTypes);
     const body = {
         filename: file.name,
@@ -178,6 +198,9 @@ const uploadDocument = async (documentId: string, file: File | AMSFileInfo, chat
         !GlobalConfiguration.silentError && console.log(error);
         throw new Error('AMSUploadDocumentFailed');
     }
+}
+const validSizeDocument = async (file : File) => {
+    return isSizeValid(file);
 }
 
 const getViewStatus = async (fileMetadata: FileMetadata, chatToken: OmnichannelChatToken, supportedImagesMimeTypes?: string[]): Promise<AMSViewStatusResponse> => {

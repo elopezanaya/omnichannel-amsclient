@@ -78,6 +78,7 @@ describe('FramedClient', () => {
         try {
             await client.fetchBlob(contentUrl);
         } catch (error) {
+            console.log(error);
             expect(error).not.toBe(undefined);
         }
     });

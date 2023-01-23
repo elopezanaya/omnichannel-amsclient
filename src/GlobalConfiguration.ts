@@ -1,6 +1,6 @@
 class GlobalConfiguration {
-    static silentError = true;
-    static debug = false;
+    static silentError = false;
+    static debug = true;
 }
 
 export default GlobalConfiguration;

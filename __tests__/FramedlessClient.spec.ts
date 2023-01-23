@@ -60,6 +60,8 @@ describe('FramedlessClient', () => {
         const client = new FramedlessClient();
         const id = 'id';
         const file =  new File([""], "filename", { type: 'text/html' });
+        Object.defineProperty(file, 'size', { value: 20710770 });
+
         const token = {
             chatId: '',
             token: ''
@@ -77,6 +79,8 @@ describe('FramedlessClient', () => {
         const client = new FramedlessClient();
         const id = 'id';
         const file =  new File([""], "filename", { type: 'text/html' });
+        Object.defineProperty(file, 'size', { value: 20710770 });
+
         const token = {
             chatId: '',
             token: ''
@@ -87,6 +91,7 @@ describe('FramedlessClient', () => {
         try {
             await client.createObject(id, file, token);
         } catch (error) {
+            console.log(error);
             expect(error).not.toBe(undefined);
         }
     });
